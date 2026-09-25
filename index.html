@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Imara — Próximamente</title>
+  <meta name="description" content="Imara. Próximamente.">
+  <meta name="theme-color" content="#000000">
+  <meta property="og:title" content="Imara — Próximamente">
+  <meta property="og:description" content="Próximamente.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='190 -8 104 272'%3E%3Crect x='190' y='-8' width='104' height='272' fill='%23000'/%3E%3Cg fill='%23fff'%3E%3Cpath d='M224.46,51.03h0s-17.01,0-17.01,0l7.61,3.8c5.76,2.88,9.4,8.77,9.4,15.21v149.06c0,6.44-3.64,12.33-9.4,15.21l-7.61,3.8h68.03l-7.61-3.8c-5.76-2.88-9.4-8.77-9.4-15.21V70.04c0-6.44,3.64-12.33,9.4-15.21l7.61-3.8h-17.01s0,0,0,0c-10.71-5.35-23.31-5.35-34.02,0Z'/%3E%3Cpath d='M283.99,246.6h-84.49c0,4.73,3.83,8.56,8.56,8.56h67.36c4.73,0,8.56-3.83,8.56-8.56h0Z'/%3E%3Cpath d='M275.48,17.01l-25.51,12.76L241.46,0l-8.5,29.77-25.51-12.76c8.27,6.21,14.19,15.36,16.22,25.9h0c11.2-5.6,24.38-5.6,35.58,0h0c2.04-10.54,7.96-19.69,16.22-25.9Z'/%3E%3C/g%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --x: 50vw;
+      --y: 40vh;
+      --ink: #f4f1ec;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: #000;
+      color: var(--ink);
+      overflow: hidden;
+    }
+
+    body {
+      font-family: "Cormorant Garamond", "Times New Roman", serif;
+      touch-action: none;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+      cursor: default;
+    }
+
+    /* Luz ambiental que sigue al puntero */
+    .halo {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(520px circle at var(--x) var(--y), rgba(255, 248, 238, .075), transparent 60%),
+        radial-gradient(160px circle at var(--x) var(--y), rgba(255, 255, 255, .05), transparent 70%);
+    }
+
+    /* Viñeta */
+    .vignette {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 45%, rgba(0, 0, 0, .85) 100%);
+    }
+
+    /* Grano fino tipo película */
+    .grain {
+      position: fixed;
+      inset: -50%;
+      pointer-events: none;
+      opacity: .07;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      animation: grain 1.2s steps(6) infinite;
+    }
+
+    @keyframes grain {
+      0%   { transform: translate(0, 0); }
+      20%  { transform: translate(-3%, 2%); }
+      40%  { transform: translate(2%, -3%); }
+      60%  { transform: translate(-2%, -1%); }
+      80%  { transform: translate(3%, 3%); }
+      100% { transform: translate(0, 0); }
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      min-height: 100%;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(2.5rem, 7vh, 4.5rem);
+      padding: 2rem 1.5rem 6rem;
+    }
+
+    .logo {
+      width: min(64vw, 440px, 52vh);
+      height: auto;
+      overflow: visible;
+      opacity: 0;
+      filter: blur(14px);
+      transform: scale(.97);
+      animation: reveal 2.6s cubic-bezier(.2, .7, .1, 1) .3s forwards;
+    }
+
+    .logo .prism { mix-blend-mode: screen; }
+
+    .glint { transform-box: view-box; transform-origin: 0 0; }
+
+    .word {
+      font-weight: 300;
+      font-size: clamp(.95rem, 2.4vw, 1.35rem);
+      letter-spacing: .62em;
+      margin-right: -.62em; /* compensa el tracking para centrar ópticamente */
+      text-transform: uppercase;
+      color: var(--ink);
+      opacity: 0;
+      animation: fadeUp 2.2s cubic-bezier(.2, .7, .1, 1) 1.6s forwards;
+    }
+
+    @supports ((-webkit-background-clip: text) or (background-clip: text)) {
+      .word {
+        color: transparent;
+        background-image:
+          radial-gradient(220px circle at var(--tx, 50%) var(--ty, 50%),
+            #ffffff 0%, #f3e9dc 22%, rgba(244, 241, 236, .5) 60%, rgba(244, 241, 236, .5) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+      }
+    }
+
+    @keyframes reveal {
+      to { opacity: 1; filter: blur(0); transform: scale(1); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); letter-spacing: .9em; }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Pie: redes sociales */
+    .social {
+      position: fixed;
+      z-index: 2;
+      left: 0;
+      right: 0;
+      bottom: max(1.75rem, env(safe-area-inset-bottom));
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1.6rem;
+      opacity: 0;
+      animation: fadeIn 2s ease 2.6s forwards;
+    }
+
+    .social::before,
+    .social::after {
+      content: "";
+      width: 2.5rem;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(244, 241, 236, .28));
+    }
+    .social::after { transform: scaleX(-1); }
+
+    .social a {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      color: rgba(244, 241, 236, .5);
+      transition: color .5s ease, filter .5s ease, transform .5s ease;
+    }
+
+    .social a:hover,
+    .social a:focus-visible {
+      color: #fff;
+      filter: drop-shadow(0 0 6px rgba(255, 248, 238, .55));
+      transform: translateY(-1px);
+    }
+
+    .social a:focus-visible { outline: 1px solid rgba(244, 241, 236, .4); outline-offset: 2px; border-radius: 50%; }
+
+    .social svg { width: 18px; height: 18px; }
+
+    @keyframes fadeIn { to { opacity: 1; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      .grain { animation: none; }
+      .logo, .word, .social { animation-duration: .01s; animation-delay: 0s; }
+    }
+  </style>
+</head>
+<body>
+  <div class="halo" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <main>
+    <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Imara</h1>
+
+    <svg class="logo" viewBox="0 0 483.49 382.73" role="img" aria-label="Imara">
+      <defs>
+        <g id="mark">
+          <path d="M224.46,51.03h0s-17.01,0-17.01,0l7.61,3.8c5.76,2.88,9.4,8.77,9.4,15.21v149.06c0,6.44-3.64,12.33-9.4,15.21l-7.61,3.8h68.03l-7.61-3.8c-5.76-2.88-9.4-8.77-9.4-15.21V70.04c0-6.44,3.64-12.33,9.4-15.21l7.61-3.8h-17.01s0,0,0,0c-10.71-5.35-23.31-5.35-34.02,0Z"/>
+          <path d="M283.99,246.6h-84.49c0,4.73,3.83,8.56,8.56,8.56h67.36c4.73,0,8.56-3.83,8.56-8.56h0Z"/>
+          <path d="M275.48,17.01l-25.51,12.76L241.46,0l-8.5,29.77-25.51-12.76c8.27,6.21,14.19,15.36,16.22,25.9h0c11.2-5.6,24.38-5.6,35.58,0h0c2.04-10.54,7.96-19.69,16.22-25.9Z"/>
+          <rect x="0" y="297.68" width="8.51" height="85.05" rx="2.13" ry="2.13"/>
+          <path d="M89.3,374.23l-37.1-74.2c-.72-1.44-2.19-2.35-3.8-2.35h-3.75c-1.17,0-2.13.95-2.13,2.13v80.8c0,1.17.95,2.13,2.13,2.13h4.25c1.17,0,2.13-.95,2.13-2.13v-65.92l32.85,65.69c.72,1.44,2.19,2.35,3.8,2.35h3.25c1.61,0,3.08-.91,3.8-2.35l32.85-65.69v65.92c0,1.17.95,2.13,2.13,2.13h4.25c1.17,0,2.13-.95,2.13-2.13v-80.8c0-1.17-.95-2.13-2.13-2.13h-3.75c-1.61,0-3.08.91-3.8,2.35l-37.1,74.2Z"/>
+          <path d="M218.51,297.68h-3.25c-1.61,0-3.08.91-3.8,2.35l-39.81,79.62c-.71,1.41.32,3.08,1.9,3.08h2.44c1.61,0,3.08-.91,3.8-2.35l3.08-6.15,52.92-30.24,18.2,36.4c.72,1.44,2.19,2.35,3.8,2.35h2.44c1.58,0,2.61-1.66,1.9-3.08l-39.81-79.62c-.72-1.44-2.19-2.35-3.8-2.35ZM186.26,367.42l30.62-61.24,17.01,34.02-47.63,27.22Z"/>
+          <path d="M352.97,323.35c.08-14.12-11.8-25.66-25.92-25.66h-27.24c-1.17,0-2.13.95-2.13,2.13v80.8c0,1.17.95,2.13,2.13,2.13h4.25c1.17,0,2.13-.95,2.13-2.13v-74.42h21.26c9.39,0,17.01,7.62,17.01,17.01,0,8.4-6.09,15.38-14.1,16.76-1.4.24-2.15,1.77-1.52,3.04l18.69,37.38c.72,1.44,2.19,2.35,3.8,2.35h2.44c1.58,0,2.61-1.66,1.9-3.08l-16.82-33.64c8.32-4.17,14.05-12.75,14.1-22.68Z"/>
+          <path d="M483.26,379.66l-39.81-79.62c-.72-1.44-2.19-2.35-3.8-2.35h-3.25c-1.61,0-3.08.91-3.8,2.35l-37.1,74.2h0l-2.71,5.43c-.71,1.41.32,3.08,1.9,3.08h2.44c1.61,0,3.08-.91,3.8-2.35l3.08-6.15h0l52.92-30.24,18.2,36.4c.72,1.44,2.19,2.35,3.8,2.35h2.44c1.58,0,2.61-1.66,1.9-3.08ZM407.4,367.42l30.62-61.24,17.01,34.02-47.63,27.22Z"/>
+        </g>
+
+        <!-- Foco de luz: se reubica con el puntero -->
+        <radialGradient id="spot" gradientUnits="userSpaceOnUse" cx="241" cy="120" r="210">
+          <stop offset="0"   stop-color="#fff" stop-opacity=".95"/>
+          <stop offset=".35" stop-color="#fbf4ea" stop-opacity=".55"/>
+          <stop offset="1"   stop-color="#fff" stop-opacity="0"/>
+        </radialGradient>
+
+        <!-- Dispersión prismática (fuego del diamante) -->
+        <linearGradient id="prism" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="140" y2="0" spreadMethod="reflect">
+          <stop offset="0"   stop-color="#000"/>
+          <stop offset=".18" stop-color="#ffb3d1"/>
+          <stop offset=".34" stop-color="#b9c8ff"/>
+          <stop offset=".5"  stop-color="#9ff3ff"/>
+          <stop offset=".66" stop-color="#d9ffb8"/>
+          <stop offset=".82" stop-color="#ffe7a3"/>
+          <stop offset="1"   stop-color="#000"/>
+        </linearGradient>
+
+        <!-- Brillo especular: volumen de vidrio iluminado por una luz puntual -->
+        <filter id="glass" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="1.8" result="bump"/>
+          <feSpecularLighting in="bump" surfaceScale="5" specularConstant="1.25" specularExponent="32" lighting-color="#fffaf2" result="spec">
+            <fePointLight id="light" x="241" y="-120" z="110"/>
+          </feSpecularLighting>
+          <feComposite in="spec" in2="SourceAlpha" operator="in"/>
+        </filter>
+
+        <radialGradient id="glintGlow">
+          <stop offset="0" stop-color="#fff" stop-opacity=".9"/>
+          <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+        </radialGradient>
+
+        <g id="star">
+          <circle r="9" fill="url(#glintGlow)"/>
+          <path d="M0,-22 L1.1,-1.1 L22,0 L1.1,1.1 L0,22 L-1.1,1.1 L-22,0 L-1.1,-1.1Z" fill="#fff"/>
+        </g>
+      </defs>
+
+      <!-- 1. Cuerpo de vidrio translúcido -->
+      <use href="#mark" fill="#fff" fill-opacity=".07" stroke="#fff" stroke-opacity=".38" stroke-width="1" vector-effect="non-scaling-stroke"/>
+      <!-- 2. Luz proyectada -->
+      <use href="#mark" fill="url(#spot)"/>
+      <!-- 3. Fuego prismático -->
+      <use class="prism" href="#mark" fill="url(#prism)" opacity=".22" id="prismLayer"/>
+      <!-- 4. Reflejos especulares -->
+      <use href="#mark" fill="#fff" filter="url(#glass)" class="prism"/>
+      <!-- 5. Destellos en las puntas de la corona -->
+      <g id="glints">
+        <g transform="translate(241.46 1)"><use class="glint" href="#star" data-x="241.46" data-y="1" style="opacity:0"/></g>
+        <g transform="translate(207.8 17.4)"><use class="glint" href="#star" data-x="207.8" data-y="17.4" style="opacity:0"/></g>
+        <g transform="translate(275.1 17.4)"><use class="glint" href="#star" data-x="275.1" data-y="17.4" style="opacity:0"/></g>
+        <g transform="translate(199.9 248)"><use class="glint" href="#star" data-x="199.9" data-y="248" style="opacity:0"/></g>
+        <g transform="translate(283.6 248)"><use class="glint" href="#star" data-x="283.6" data-y="248" style="opacity:0"/></g>
+      </g>
+    </svg>
+
+    <p class="word">Próximamente</p>
+  </main>
+
+  <footer class="social">
+    <a href="https://www.instagram.com/imara.girls/" target="_blank" rel="noopener" aria-label="Instagram de Imara">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true">
+        <rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/>
+        <circle cx="12" cy="12" r="4.3"/>
+        <circle cx="17.4" cy="6.6" r=".6" fill="currentColor" stroke="none"/>
+      </svg>
+    </a>
+    <a href="https://www.tiktok.com/@imara.girls" target="_blank" rel="noopener" aria-label="TikTok de Imara">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+      </svg>
+    </a>
+  </footer>
+
+  <script>
+    (() => {
+      const root   = document.documentElement;
+      const svg    = document.querySelector('.logo');
+      const light  = document.getElementById('light');
+      const spot   = document.getElementById('spot');
+      const prism  = document.getElementById('prism');
+      const word   = document.querySelector('.word');
+      const glints = [...document.querySelectorAll('.glint')].map(el => ({
+        el, x: +el.dataset.x, y: +el.dataset.y, phase: Math.random() * 6.28
+      }));
+
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const IDLE_MS = 3500;
+      const CX = 241.7, CY = 191.4; // centro del viewBox
+
+      let tx = innerWidth / 2, ty = innerHeight * .3;
+      let x = tx, y = ty;
+      let lastInput = -Infinity;
+
+      const setTarget = e => {
+        tx = e.clientX; ty = e.clientY;
+        lastInput = performance.now();
+      };
+      addEventListener('pointermove', setTarget, { passive: true });
+      addEventListener('pointerdown', setTarget, { passive: true });
+
+      const toSvg = (px, py) => {
+        const m = svg.getScreenCTM();
+        return m ? new DOMPoint(px, py).matrixTransform(m.inverse()) : { x: CX, y: CY };
+      };
+
+      function frame(t) {
+        // En reposo, la luz recorre el logo lentamente
+        if (t - lastInput > IDLE_MS && !reduced) {
+          const r = svg.getBoundingClientRect();
+          const ox = r.left + r.width / 2, oy = r.top + r.height * .42;
+          tx = ox + Math.cos(t * .00032) * r.width * .62;
+          ty = oy + Math.sin(t * .00051) * r.height * .55;
+        }
+
+        const k = t - lastInput > IDLE_MS ? .03 : .12;
+        x += (tx - x) * k;
+        y += (ty - y) * k;
+
+        root.style.setProperty('--x', x + 'px');
+        root.style.setProperty('--y', y + 'px');
+
+        const p = toSvg(x, y);
+        light.setAttribute('x', p.x.toFixed(1));
+        light.setAttribute('y', p.y.toFixed(1));
+        spot.setAttribute('cx', p.x.toFixed(1));
+        spot.setAttribute('cy', p.y.toFixed(1));
+
+        // El prisma gira y se desplaza según el ángulo de incidencia
+        const dx = p.x - CX, dy = p.y - CY;
+        const ang = Math.atan2(dy, dx) * 180 / Math.PI + 90;
+        const shift = (dx * .35 + dy * .2).toFixed(1);
+        prism.setAttribute('gradientTransform', `rotate(${ang.toFixed(1)} ${CX} ${CY}) translate(${shift} 0)`);
+
+        // Destellos: se encienden cuando la luz se acerca
+        for (const g of glints) {
+          const d = Math.hypot(p.x - g.x, p.y - g.y);
+          let o = Math.max(0, 1 - d / 150);
+          o = o * o * (0.75 + 0.25 * Math.sin(t * .006 + g.phase));
+          const s = .35 + o * .9;
+          g.el.style.opacity = o.toFixed(3);
+          g.el.style.transform = `scale(${s.toFixed(3)}) rotate(${(t * .02 + g.phase * 20) % 360}deg)`;
+        }
+
+        const wr = word.getBoundingClientRect();
+        word.style.setProperty('--tx', (x - wr.left) + 'px');
+        word.style.setProperty('--ty', (y - wr.top) + 'px');
+
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    })();
+  </script>
+</body>
+</html>
